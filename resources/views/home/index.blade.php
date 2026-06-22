@@ -1,4 +1,4 @@
-<x-app-layout title="Home Page">
+<x-app-layout title="Home Page" >
         <!-- Home Slider -->
         <section class="hero-slider">
             <!-- Carousel wrapper -->
