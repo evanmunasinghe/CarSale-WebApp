@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model as EloquentModel; // 1. Alias the core class
 use App\Models\Model as CarModel;                      // 2. Alias your custom model
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -81,5 +82,11 @@ class Car extends EloquentModel
     public function favouredUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'favourite_cars');
+    }
+
+
+    public function getCreateDate() :string
+    {
+        return (new Carbon($this->created_at))->format('Y-m-d');
     }
 }

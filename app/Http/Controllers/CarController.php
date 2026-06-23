@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Car;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CarController extends Controller
@@ -12,7 +13,12 @@ class CarController extends Controller
      */
     public function index()
     {
-        return view('car.index');
+        $cars = User::find(1)
+            ->cars()
+            ->with(['primaryImage','maker','model'])
+            ->orderBy("created_at", "desc")
+            ->get();
+        return view('car.index', ['cars' => $cars]);
     }
 
     /**
@@ -36,7 +42,7 @@ class CarController extends Controller
      */
     public function show(Car $car)
     {
-        return view('car.show');
+        return view('car.show', ['car' => $car]);
     }
 
     /**
@@ -52,7 +58,7 @@ class CarController extends Controller
      */
     public function update(Request $request, Car $car)
     {
-        
+
     }
 
     /**
@@ -60,11 +66,38 @@ class CarController extends Controller
      */
     public function destroy(Car $car)
     {
-        
-  }
 
-  public function search()
-  {
-      return view('car.search');
-  }
+    }
+
+    public function search()
+{
+    $query = Car::where('published_at', '<', now())
+        ->with(['primaryImage', 'city', 'carType', 'fuelType', 'maker', 'model'])
+        ->orderBy('published_at', 'desc');
+
+    // Filter by State ID via the City relationship
+    $query->whereHas('city', function ($q) {
+        $q->where('state_id', 2);
+    });
+
+    // Filter by Car Type Name via the CarType relationship
+    $query->whereHas('carType', function ($q) {
+        $q->where('name', 'Sedan');
+    });
+
+    $carCount = $query->count();
+    $cars = $query->limit(30)->get();
+
+    return view('car.search', ['cars' => $cars, 'carCount' => $carCount]);
+}
+
+    public function watchlist()
+    {
+        //TODO we come back to this
+
+        $cars = User::find(4)->favouriteCars()
+        ->with(['primaryImage','city','carType','fuelType','maker','model'])
+        ->get();
+        return view('car.watchlist',['cars'=> $cars]);
+    }
 }
