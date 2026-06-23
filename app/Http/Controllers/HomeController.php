@@ -10,9 +10,12 @@ class HomeController extends Controller
 {
     public function index(){
        
-    $cars = Car::find(1);
+        $cars = Car::where('published_at','<',now())
+        ->orderBy('published_at','desc')
+        ->limit(30)
+        ->get();
         
 
-        return view('home.index');
+        return view('home.index', ['cars'=>$cars]);
 } 
 }

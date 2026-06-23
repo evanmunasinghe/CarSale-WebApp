@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as EloquentModel; // 1. Alias the core class
+use App\Models\Model as CarModel;                      // 2. Alias your custom model
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Car extends Model
+class Car extends EloquentModel
 {
     use HasFactory, SoftDeletes;
 
@@ -31,7 +32,7 @@ class Car extends Model
         'published_at',
     ];
 
-      public function carType(): BelongsTo
+    public function carType(): BelongsTo
     {
         return $this->belongsTo(CarType::class);
     }
@@ -48,7 +49,8 @@ class Car extends Model
 
     public function model(): BelongsTo
     {
-        return $this->belongsTo(Model::class);
+        // 3. Use the alias here and explicitly name 'model_id' as the foreign key
+        return $this->belongsTo(CarModel::class, 'model_id');
     }
 
     public function owner(): BelongsTo
@@ -76,10 +78,8 @@ class Car extends Model
         return $this->hasMany(CarImage::class);
     }
 
-  
-
-        public function favouredUsers(): BelongsToMany
-        {
-        return $this->belongsToMany(User::class, 'favourite_cars',);
+    public function favouredUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favourite_cars');
     }
 }
