@@ -24,4 +24,6 @@ class Maker extends Model
     {
         return $this->hasMany(\App\Models\Model::class);
     }
+
+    
 }
