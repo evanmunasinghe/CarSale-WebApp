@@ -11,13 +11,13 @@ class CarController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $cars = User::find(1)
             ->cars()
             ->with(['primaryImage','maker','model'])
             ->orderBy("created_at", "desc")
-            ->get();
+            ->paginate(15);
         return view('car.index', ['cars' => $cars]);
     }
 
@@ -40,8 +40,11 @@ class CarController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Car $car)
+    public function show(Request $request, Car $car)
     {
+
+    if($request->isMethod('POST')) {
+    }
         return view('car.show', ['car' => $car]);
     }
 
@@ -75,20 +78,9 @@ class CarController extends Controller
         ->with(['primaryImage', 'city', 'carType', 'fuelType', 'maker', 'model'])
         ->orderBy('published_at', 'desc');
 
-    // Filter by State ID via the City relationship
-    $query->whereHas('city', function ($q) {
-        $q->where('state_id', 2);
-    });
+    $cars = $query->paginate(15);
 
-    // Filter by Car Type Name via the CarType relationship
-    $query->whereHas('carType', function ($q) {
-        $q->where('name', 'Sedan');
-    });
-
-    $carCount = $query->count();
-    $cars = $query->limit(30)->get();
-
-    return view('car.search', ['cars' => $cars, 'carCount' => $carCount]);
+    return view('car.search', ['cars' => $cars]);
 }
 
     public function watchlist()
@@ -97,7 +89,7 @@ class CarController extends Controller
 
         $cars = User::find(4)->favouriteCars()
         ->with(['primaryImage','city','carType','fuelType','maker','model'])
-        ->get();
+        ->paginate(15);
         return view('car.watchlist',['cars'=> $cars]);
     }
 }
