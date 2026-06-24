@@ -10,6 +10,7 @@
                 </svg>
             </button>
             <div class="navbar-auth">
+                @auth
                 <a href="{{ route('car.create') }}" class="btn btn-add-new-car">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" style="width: 18px; margin-right: 4px">
@@ -21,7 +22,7 @@
                 </a>
                 <div class="navbar-menu" tabindex="-1">
                     <a href="javascript:void(0)" class="navbar-menu-handler">
-                        My Account
+                        {{ auth()->user()->name }}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" style="width: 20px">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -29,18 +30,20 @@
                     </a>
                     <ul class="submenu">
                         <li>
-                            <a href="my_cars.html">My Cars</a>
+                            <a href="{{ route('car.index') }}">My Cars</a>
                         </li>
                         <li>
-                            <a href="watchlist.html">My Favourite Cars</a>
+                            <a href="{{ route('car.watchlist') }}">My Favourite Cars</a>
                         </li>
                         <li>
-                            <form action="#" method="post">
+                            <form action="{{ route('logout') }}" method="post">
+                                @csrf
                                 <button>Logout</button>
                             </form>
                         </li>
                     </ul>
                 </div>
+                @else
                 <a href="{{ route('signup') }}" class="btn btn-primary btn-signup">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" style="width: 18px; margin-right: 4px">
@@ -56,6 +59,7 @@
     </svg>
     <span>Login</span>
 </a>
+                @endauth
             </div>
         </div>
     </header>

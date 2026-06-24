@@ -9,17 +9,18 @@
             <div class="car-images-carousel">
               <div class="car-image-wrapper">
                 <img
-                  src="{{$car->primaryImage->image_path}}"
+                  src="{{ $car->primaryImage ? $car->primaryImage->url : asset('img/car-png-39071.png') }}"
                   alt=""
                   class="car-active-image"
                   id="activeImage"
                 />
               </div>
               <div class="car-image-thumbnails">
-                @foreach ($car->images as $image)
-                <img src="{{ $image->image_path }}" alt="" />
-                @endforeach
-                
+                @forelse ($car->images as $image)
+                <img src="{{ $image->url }}" alt="" />
+                @empty
+                <img src="{{ asset('img/car-png-39071.png') }}" alt="" />
+                @endforelse
               </div>
               <button class="carousel-button prev-button" id="prevButton">
                 <svg

@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
   const initSlider = () => {
     const slides = document.querySelectorAll(".hero-slide");
+    if (!slides.length) {
+      return;
+    }
+
     let currentIndex = 0; // Track the current slide
     const totalSlides = slides.length;
 
@@ -91,6 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const initMobileNavbar = () => {
     const btnToggle = document.querySelector(".btn-navbar-toggle");
+    if (!btnToggle) {
+      return;
+    }
 
     btnToggle.onclick = () => {
       document.body.classList.toggle("navbar-opened");
@@ -107,6 +114,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
 
+    if (!thumbnails.length || !activeImage || !prevButton || !nextButton) {
+      return;
+    }
 
     let currentIndex = 0;
 
@@ -221,13 +231,15 @@ document.addEventListener("DOMContentLoaded", function () {
   initCascadingDropdown('#stateSelect', '#citySelect');
   initSortingDropdown()
 
-  ScrollReveal().reveal(".hero-slide.active .hero-slider-title", {
-    delay: 200,
-    reset: true,
-  });
-  ScrollReveal().reveal(".hero-slide.active .hero-slider-content", {
-    delay: 200,
-    origin: "bottom",
-    distance: "50%",
-  });
+  if (typeof ScrollReveal !== 'undefined') {
+    ScrollReveal().reveal(".hero-slide.active .hero-slider-title", {
+      delay: 200,
+      reset: true,
+    });
+    ScrollReveal().reveal(".hero-slide.active .hero-slider-content", {
+      delay: 200,
+      origin: "bottom",
+      distance: "50%",
+    });
+  }
 });
