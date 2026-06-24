@@ -1,9 +1,23 @@
  @props(['car', 'isInWatchlist' => false])
+ @php
+     $placeholderColors = ['#f97316', '#0ea5e9', '#22c55e', '#a855f7', '#ef4444', '#14b8a6', '#eab308'];
+     $placeholderColor = $placeholderColors[$car->id % count($placeholderColors)];
+ @endphp
  <div class="car-item card">
      <a href="{{ route('car.show', $car) }}">
-        <img src="{{ $car->primaryImage ? $car->primaryImage->url : asset('img/car-png-39071.png') }}" 
-     alt="{{ $car->maker->name }} {{ $car->model->name }}" 
-     class="car-item-img rounded-t" />
+        @if ($car->primaryImage)
+            <img src="{{ $car->primaryImage->url }}"
+                alt="{{ $car->maker->name }} {{ $car->model->name }}"
+                class="car-item-img rounded-t"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="car-item-img car-item-placeholder rounded-t" style="display: none; background-color: {{ $placeholderColor }}">
+                {{ strtoupper(substr($car->maker->name, 0, 1)) }}
+            </div>
+        @else
+            <div class="car-item-img car-item-placeholder rounded-t" style="background-color: {{ $placeholderColor }}">
+                {{ strtoupper(substr($car->maker->name, 0, 1)) }}
+            </div>
+        @endif
      </a>
      <div class="p-medium">
          <div class="flex items-center justify-between">

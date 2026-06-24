@@ -25,7 +25,7 @@
                 <div class="search-car-results-wrapper">
                     <div class="search-cars-sidebar">
                         <div class="card card-found-cars">
-                            <p class="m-0">Found <strong>{{ $cars->total() }}</strong> cars</p>
+                            <p class="m-0">Found <strong id="searchResultsTotal">{{ $cars->total() }}</strong> cars</p>
 
                             <button class="close-filters-button">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -410,7 +410,7 @@
                         <!--/ Find a car form -->
                     </div>
 
-                    <div id="searchResults">
+                    <div id="searchResults" class="search-cars-results">
                         @include('car.partials.search-results', ['cars' => $cars])
                     </div>
                 </div>
@@ -422,6 +422,7 @@
     <script>
         const searchForm = document.querySelector('.find-a-car-form');
         const searchResults = document.querySelector('#searchResults');
+        const searchResultsTotal = document.querySelector('#searchResultsTotal');
 
         searchForm.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -440,6 +441,7 @@
             const data = await response.json();
 
             searchResults.innerHTML = data.html;
+            searchResultsTotal.textContent = data.total;
         });
 
 

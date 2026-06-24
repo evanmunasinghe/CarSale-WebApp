@@ -726,6 +726,14 @@ main {
   object-fit: cover;
 }
 
+.car-item-placeholder {
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 42px;
+  font-weight: 700;
+}
+
 .car-item-badge {
   background-color: #e5e5e5;
   padding: 0.25rem 0.5rem;
@@ -1217,10 +1225,15 @@ a.pagination-item:hover {
 
 .search-cars-results {
   flex: 1;
+  min-width: 0;
 }
 
 .search-cars-results .car-items-listing {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.search-cars-results .car-item {
+  min-width: 0;
 }
 
 .success-message {

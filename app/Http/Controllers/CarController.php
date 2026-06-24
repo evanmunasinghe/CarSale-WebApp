@@ -222,41 +222,61 @@ class CarController extends Controller
     }
 
     public function searchAjax(Request $request)
-{
-    $filters = array_filter($request->only([
-        'maker_id',
-        'model_id',
-        'car_type_id',
-        'year_from',
-        'year_to',
-        'price_from',
-        'price_to',
-        'mileage',
-        'state_id',
-        'city_id',
-        'fuel_type_id',
-        'sort',
-    ]), fn ($value) => $value !== null && $value !== '');
+    {
+        $filters = $this->searchFilters($request);
+        $cars = $this->searchCars($filters)->paginate(15);
 
-    $query = Car::where('published_at', '<=', now())
-        ->with(['primaryImage', 'city', 'carType', 'fuelType', 'maker', 'model']);
-
-    // apply same filters here
-    // example:
-    if (!empty($filters['maker_id'])) {
-        $query->where('maker_id', $filters['maker_id']);
+        return response()->json([
+            'html' => view('car.partials.search-results', compact('cars'))->render(),
+            'total' => $cars->total(),
+        ]);
     }
 
-    $cars = $query->orderBy('published_at', 'desc')->paginate(15);
-
-    return response()->json([
-        'html' => view('car.partials.search-results', compact('cars'))->render(),
-    ]);
-}
     public function search()
     {
         $filters = session('car_search_filters', []);
+        $cars = $this->searchCars($filters)->paginate(15);
+        $makers = Maker::with('models')->orderBy('name', 'asc')->get();
+        $carTypes = CarType::orderBy('name', 'asc')->get();
+        $fuelTypes = FuelType::orderBy('name', 'asc')->get();
+        $states = State::with('cities')->orderBy('name', 'asc')->get();
 
+        return view('car.search', compact('cars', 'filters', 'makers', 'carTypes', 'fuelTypes', 'states'));
+    }
+
+    public function searchSubmit(Request $request)
+    {
+        $filters = $this->searchFilters($request);
+
+        if (empty($filters)) {
+            session()->forget('car_search_filters');
+        } else {
+            session(['car_search_filters' => $filters]);
+        }
+
+        return redirect()->route('car.search');
+    }
+
+    private function searchFilters(Request $request): array
+    {
+        return array_filter($request->only([
+            'maker_id',
+            'model_id',
+            'car_type_id',
+            'year_from',
+            'year_to',
+            'price_from',
+            'price_to',
+            'mileage',
+            'state_id',
+            'city_id',
+            'fuel_type_id',
+            'sort',
+        ]), fn ($value) => $value !== null && $value !== '');
+    }
+
+    private function searchCars(array $filters)
+    {
         $query = Car::where('published_at', '<=', now())
             ->with(['primaryImage', 'city', 'carType', 'fuelType', 'maker', 'model']);
 
@@ -310,39 +330,7 @@ class CarController extends Controller
             default => $query->orderBy('published_at', 'desc'),
         };
 
-        $cars = $query->paginate(15);
-        $makers = Maker::with('models')->orderBy('name', 'asc')->get();
-        $carTypes = CarType::orderBy('name', 'asc')->get();
-        $fuelTypes = FuelType::orderBy('name', 'asc')->get();
-        $states = State::with('cities')->orderBy('name', 'asc')->get();
-
-        return view('car.search', compact('cars', 'filters', 'makers', 'carTypes', 'fuelTypes', 'states'));
-    }
-
-    public function searchSubmit(Request $request)
-    {
-        $filters = array_filter($request->only([
-            'maker_id',
-            'model_id',
-            'car_type_id',
-            'year_from',
-            'year_to',
-            'price_from',
-            'price_to',
-            'mileage',
-            'state_id',
-            'city_id',
-            'fuel_type_id',
-            'sort',
-        ]), fn ($value) => $value !== null && $value !== '');
-
-        if (empty($filters)) {
-            session()->forget('car_search_filters');
-        } else {
-            session(['car_search_filters' => $filters]);
-        }
-
-        return redirect()->route('car.search');
+        return $query;
     }
 
     public function watchlist(Request $request)
