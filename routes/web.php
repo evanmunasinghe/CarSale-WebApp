@@ -19,9 +19,13 @@ Route::get('/login', [LoginController::class,'create']) ->name('login');
 
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->middleware('auth');
 
+//search
 Route::get('/car/search', [CarController::class,'search']) ->name('car.search');
 
 Route::post('/car/search', [CarController::class, 'searchSubmit']) ->name('car.search.submit');
+
+Route::post('/car/search/ajax', [CarController::class, 'searchAjax'])->name('car.search.ajax');
+
 
 Route::get('/car/watchlist', [CarController::class,'watchlist']) ->name('car.watchlist')->middleware('auth');
 

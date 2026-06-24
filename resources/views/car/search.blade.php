@@ -39,7 +39,8 @@
 
                         <!-- Find a car form -->
                         <section class="find-a-car">
-                            <form action="{{ route('car.search.submit') }}" method="POST" class="find-a-car-form card flex p-medium">
+                            <form action="{{ route('car.search.submit') }}" method="POST"
+                                class="find-a-car-form card flex p-medium">
                                 @csrf
                                 <div class="find-a-car-inputs">
                                     <div class="form-group">
@@ -409,14 +410,8 @@
                         <!--/ Find a car form -->
                     </div>
 
-                    <div class="search-cars-results">
-                        <div class="car-items-listing">
-                            @foreach ($cars as $car)
-                              <x-car-item :$car />
-                            @endforeach
-                        </div>
-                        {{ $cars->onEachSide(1)->links('pagination') }}
-                      
+                    <div id="searchResults">
+                        @include('car.partials.search-results', ['cars' => $cars])
                     </div>
                 </div>
             </div>
@@ -425,6 +420,29 @@
     </main>
 
     <script>
+        const searchForm = document.querySelector('.find-a-car-form');
+        const searchResults = document.querySelector('#searchResults');
+
+        searchForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(searchForm);
+
+            const response = await fetch("{{ route('car.search.ajax') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                    "Accept": "application/json",
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            searchResults.innerHTML = data.html;
+        });
+
+
         window.carSearchFilters = @json($filters ?? []);
         window.carSearchOptions = {
             makers: @json($makers ?? []),

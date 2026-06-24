@@ -221,6 +221,38 @@ class CarController extends Controller
         return redirect()->route('car.index')->with('success', 'Vehicle listing has been removed successfully.');
     }
 
+    public function searchAjax(Request $request)
+{
+    $filters = array_filter($request->only([
+        'maker_id',
+        'model_id',
+        'car_type_id',
+        'year_from',
+        'year_to',
+        'price_from',
+        'price_to',
+        'mileage',
+        'state_id',
+        'city_id',
+        'fuel_type_id',
+        'sort',
+    ]), fn ($value) => $value !== null && $value !== '');
+
+    $query = Car::where('published_at', '<=', now())
+        ->with(['primaryImage', 'city', 'carType', 'fuelType', 'maker', 'model']);
+
+    // apply same filters here
+    // example:
+    if (!empty($filters['maker_id'])) {
+        $query->where('maker_id', $filters['maker_id']);
+    }
+
+    $cars = $query->orderBy('published_at', 'desc')->paginate(15);
+
+    return response()->json([
+        'html' => view('car.partials.search-results', compact('cars'))->render(),
+    ]);
+}
     public function search()
     {
         $filters = session('car_search_filters', []);
