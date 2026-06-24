@@ -223,13 +223,94 @@ class CarController extends Controller
 
     public function search()
     {
+        $filters = session('car_search_filters', []);
+
         $query = Car::where('published_at', '<=', now())
-            ->with(['primaryImage', 'city', 'carType', 'fuelType', 'maker', 'model'])
-            ->orderBy('published_at', 'desc');
+            ->with(['primaryImage', 'city', 'carType', 'fuelType', 'maker', 'model']);
+
+        if (!empty($filters['maker_id'])) {
+            $query->where('maker_id', $filters['maker_id']);
+        }
+
+        if (!empty($filters['model_id'])) {
+            $query->where('model_id', $filters['model_id']);
+        }
+
+        if (!empty($filters['car_type_id'])) {
+            $query->where('car_type_id', $filters['car_type_id']);
+        }
+
+        if (!empty($filters['fuel_type_id'])) {
+            $query->where('fuel_type_id', $filters['fuel_type_id']);
+        }
+
+        if (!empty($filters['city_id'])) {
+            $query->where('city_id', $filters['city_id']);
+        } elseif (!empty($filters['state_id'])) {
+            $query->whereHas('city', function ($cityQuery) use ($filters) {
+                $cityQuery->where('state_id', $filters['state_id']);
+            });
+        }
+
+        if (!empty($filters['year_from'])) {
+            $query->where('year', '>=', $filters['year_from']);
+        }
+
+        if (!empty($filters['year_to'])) {
+            $query->where('year', '<=', $filters['year_to']);
+        }
+
+        if (!empty($filters['price_from'])) {
+            $query->where('price', '>=', $filters['price_from']);
+        }
+
+        if (!empty($filters['price_to'])) {
+            $query->where('price', '<=', $filters['price_to']);
+        }
+
+        if (!empty($filters['mileage'])) {
+            $query->where('mileage', '<=', $filters['mileage']);
+        }
+
+        match ($filters['sort'] ?? null) {
+            'price' => $query->orderBy('price'),
+            '-price' => $query->orderBy('price', 'desc'),
+            default => $query->orderBy('published_at', 'desc'),
+        };
 
         $cars = $query->paginate(15);
+        $makers = Maker::with('models')->orderBy('name', 'asc')->get();
+        $carTypes = CarType::orderBy('name', 'asc')->get();
+        $fuelTypes = FuelType::orderBy('name', 'asc')->get();
+        $states = State::with('cities')->orderBy('name', 'asc')->get();
 
-        return view('car.search', ['cars' => $cars]);
+        return view('car.search', compact('cars', 'filters', 'makers', 'carTypes', 'fuelTypes', 'states'));
+    }
+
+    public function searchSubmit(Request $request)
+    {
+        $filters = array_filter($request->only([
+            'maker_id',
+            'model_id',
+            'car_type_id',
+            'year_from',
+            'year_to',
+            'price_from',
+            'price_to',
+            'mileage',
+            'state_id',
+            'city_id',
+            'fuel_type_id',
+            'sort',
+        ]), fn ($value) => $value !== null && $value !== '');
+
+        if (empty($filters)) {
+            session()->forget('car_search_filters');
+        } else {
+            session(['car_search_filters' => $filters]);
+        }
+
+        return redirect()->route('car.search');
     }
 
     public function watchlist(Request $request)

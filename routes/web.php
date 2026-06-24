@@ -21,6 +21,8 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->mid
 
 Route::get('/car/search', [CarController::class,'search']) ->name('car.search');
 
+Route::post('/car/search', [CarController::class, 'searchSubmit']) ->name('car.search.submit');
+
 Route::get('/car/watchlist', [CarController::class,'watchlist']) ->name('car.watchlist')->middleware('auth');
 
 Route::resource('car', CarController::class)->except(['show'])->middleware('auth');

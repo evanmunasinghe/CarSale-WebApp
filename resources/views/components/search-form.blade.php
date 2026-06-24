@@ -1,7 +1,8 @@
  <!-- Find a car form -->
         <section class="find-a-car">
             <div class="container">
-                <form action="{{ route('car.search') }}" method="GET" class="find-a-car-form card flex p-medium">
+                <form action="{{ route('car.search.submit') }}" method="POST" class="find-a-car-form card flex p-medium">
+                    @csrf
                     <div class="find-a-car-inputs">
                         <div>
                             <select id="makerSelect" name="maker_id">

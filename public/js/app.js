@@ -206,19 +206,119 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const initSortingDropdown = () => {
     const sortingDropdown = document.querySelector('.sort-dropdown');
+    const form = document.querySelector('.find-a-car-form');
     if (!sortingDropdown) return;
 
-    // Init sorting dropdown with the current value
-    const url = new URL(window.location.href);
-    const sortValue = url.searchParams.get('sort');
-    if (sortValue) {
-      sortingDropdown.value = sortValue;
+    if (window.carSearchFilters?.sort) {
+      sortingDropdown.value = window.carSearchFilters.sort;
     }
 
     sortingDropdown.addEventListener('change', (ev) => {
-      const url = new URL(window.location.href);
-      url.searchParams.set('sort', ev.target.value);
-      window.location.href = url.toString();
+      if (!form) return;
+
+      let sortInput = form.querySelector('[name="sort"]');
+      if (!sortInput) {
+        sortInput = document.createElement('input');
+        sortInput.type = 'hidden';
+        sortInput.name = 'sort';
+        form.append(sortInput);
+      }
+
+      sortInput.value = ev.target.value;
+      form.submit();
+    });
+  }
+
+  const initSearchOptions = () => {
+    const options = window.carSearchOptions;
+    const form = document.querySelector('.find-a-car-form');
+
+    if (!options || !form) return;
+
+    const replaceOptions = (selector, placeholder, items, getParentId = null) => {
+      const select = form.querySelector(selector);
+      if (!select) return;
+
+      select.innerHTML = '';
+
+      const placeholderOption = document.createElement('option');
+      placeholderOption.value = '';
+      placeholderOption.textContent = placeholder;
+      placeholderOption.style.display = 'block';
+      select.append(placeholderOption);
+
+      items.forEach((item) => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.name;
+
+        const parentId = getParentId ? getParentId(item) : null;
+        if (parentId) {
+          option.dataset.parent = parentId;
+          option.style.display = 'none';
+        }
+
+        select.append(option);
+      });
+    };
+
+    replaceOptions('#makerSelect', 'Maker', options.makers || []);
+    replaceOptions(
+      '#modelSelect',
+      'Model',
+      (options.makers || []).flatMap((maker) => maker.models || []),
+      (model) => model.maker_id
+    );
+    replaceOptions('[name="car_type_id"]', 'Type', options.carTypes || []);
+    replaceOptions('#stateSelect', 'State/Region', options.states || []);
+    replaceOptions(
+      '#citySelect',
+      'City',
+      (options.states || []).flatMap((state) => state.cities || []),
+      (city) => city.state_id
+    );
+    replaceOptions('[name="fuel_type_id"]', 'Fuel Type', options.fuelTypes || []);
+  }
+
+  const initSearchFormState = () => {
+    const filters = window.carSearchFilters || {};
+    const form = document.querySelector('.find-a-car-form');
+
+    if (!form) return;
+
+    const setValue = (name, value) => {
+      if (value === undefined || value === null || value === '') return;
+
+      const field = form.querySelector(`[name="${name}"]`);
+      if (field) {
+        field.value = value;
+      }
+    };
+
+    setValue('maker_id', filters.maker_id);
+    form.querySelector('[name="maker_id"]')?.dispatchEvent(new Event('change'));
+    setValue('model_id', filters.model_id);
+
+    setValue('state_id', filters.state_id);
+    form.querySelector('[name="state_id"]')?.dispatchEvent(new Event('change'));
+    setValue('city_id', filters.city_id);
+
+    [
+      'car_type_id',
+      'year_from',
+      'year_to',
+      'price_from',
+      'price_to',
+      'mileage',
+      'fuel_type_id',
+    ].forEach((name) => setValue(name, filters[name]));
+
+    form.querySelector('.btn-find-a-car-reset')?.addEventListener('click', () => {
+      form.reset();
+      form.querySelectorAll('select, input').forEach((field) => {
+        field.value = '';
+      });
+      form.submit();
     });
   }
 
@@ -227,8 +327,10 @@ document.addEventListener("DOMContentLoaded", function () {
   initMobileNavbar();
   imageCarousel();
   initMobileFilters();
+  initSearchOptions();
   initCascadingDropdown('#makerSelect', '#modelSelect');
   initCascadingDropdown('#stateSelect', '#citySelect');
+  initSearchFormState();
   initSortingDropdown()
 
   if (typeof ScrollReveal !== 'undefined') {

@@ -71,6 +71,15 @@
         <main>
             <x-search-form />
 
+            <script>
+                window.carSearchOptions = {
+                    makers: @json($makers ?? []),
+                    carTypes: @json($carTypes ?? []),
+                    fuelTypes: @json($fuelTypes ?? []),
+                    states: @json($states ?? []),
+                };
+            </script>
+
             <!-- New Cars -->
             <section>
                 <div class="container">

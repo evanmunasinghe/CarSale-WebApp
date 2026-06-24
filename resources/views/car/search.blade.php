@@ -39,7 +39,8 @@
 
                         <!-- Find a car form -->
                         <section class="find-a-car">
-                            <form action="/s.html" method="GET" class="find-a-car-form card flex p-medium">
+                            <form action="{{ route('car.search.submit') }}" method="POST" class="find-a-car-form card flex p-medium">
+                                @csrf
                                 <div class="find-a-car-inputs">
                                     <div class="form-group">
                                         <label class="mb-medium">Maker</label>
@@ -422,4 +423,14 @@
         </section>
         <!--/ Found Cars -->
     </main>
+
+    <script>
+        window.carSearchFilters = @json($filters ?? []);
+        window.carSearchOptions = {
+            makers: @json($makers ?? []),
+            carTypes: @json($carTypes ?? []),
+            fuelTypes: @json($fuelTypes ?? []),
+            states: @json($states ?? []),
+        };
+    </script>
 </x-app-layout>
