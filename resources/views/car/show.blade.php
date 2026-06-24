@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout title="{{$car->maker->name}} {{ $car->model->name }}">
      <main>
       <div class="container">
         <h1 class="car-details-page-title">{{$car->maker->name}} {{ $car->model->name }} - {{$car->year}}</h1>
