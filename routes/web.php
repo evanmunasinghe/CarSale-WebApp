@@ -29,6 +29,10 @@ Route::post('/car/search/ajax', [CarController::class, 'searchAjax'])->name('car
 
 Route::get('/car/watchlist', [CarController::class,'watchlist']) ->name('car.watchlist')->middleware('auth');
 
+Route::post('/car/{car}/watchlist', [CarController::class, 'toggleWatchlist'])
+    ->name('car.watchlist.toggle')
+    ->middleware('auth');
+
 Route::resource('car', CarController::class)->except(['show'])->middleware('auth');
 
 Route::get('/car/{car}', [CarController::class, 'show'])->name('car.show');

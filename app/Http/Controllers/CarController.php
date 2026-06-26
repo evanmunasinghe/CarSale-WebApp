@@ -340,4 +340,36 @@ class CarController extends Controller
             ->paginate(15);
         return view('car.watchlist', ['cars' => $cars]);
     }
+
+    public function toggleWatchlist(Request $request, Car $car)
+    {
+        $user = $request->user();
+        $isInWatchlist = $user->favouriteCars()
+            ->where('car_id', $car->id)
+            ->exists();
+
+        if ($isInWatchlist) {
+            $user->favouriteCars()->detach($car->id);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'isInWatchlist' => false,
+                    'message' => 'Car removed from your watchlist.',
+                ]);
+            }
+
+            return back()->with('success', 'Car removed from your watchlist.');
+        }
+
+        $user->favouriteCars()->syncWithoutDetaching([$car->id]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'isInWatchlist' => true,
+                'message' => 'Car added to your watchlist.',
+            ]);
+        }
+
+        return back()->with('success', 'Car added to your watchlist.');
+    }
 }

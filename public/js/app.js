@@ -229,6 +229,55 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const initWatchlistButtons = () => {
+    document.addEventListener('submit', async (ev) => {
+      const form = ev.target.closest('.watchlist-form');
+      if (!form) return;
+
+      ev.preventDefault();
+
+      const button = form.querySelector('.btn-heart');
+      const emptyIcon = form.querySelector('[data-watchlist-empty-icon]');
+      const filledIcon = form.querySelector('[data-watchlist-filled-icon]');
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+      if (!button || !emptyIcon || !filledIcon || !csrfToken) {
+        form.submit();
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+          },
+          body: new FormData(form),
+        });
+
+        if (!response.ok) {
+          throw new Error('Watchlist request failed.');
+        }
+
+        const data = await response.json();
+
+        emptyIcon.classList.toggle('hidden', data.isInWatchlist);
+        filledIcon.classList.toggle('hidden', !data.isInWatchlist);
+        button.setAttribute(
+          'aria-label',
+          data.isInWatchlist ? button.dataset.removeLabel : button.dataset.addLabel
+        );
+      } catch (error) {
+        form.submit();
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+
   const initSearchOptions = () => {
     const options = window.carSearchOptions;
     const form = document.querySelector('.find-a-car-form');
@@ -332,6 +381,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initCascadingDropdown('#stateSelect', '#citySelect');
   initSearchFormState();
   initSortingDropdown()
+  initWatchlistButtons();
 
   if (typeof ScrollReveal !== 'undefined') {
     ScrollReveal().reveal(".hero-slide.active .hero-slider-title", {
